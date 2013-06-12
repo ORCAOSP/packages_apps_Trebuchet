@@ -273,5 +273,5 @@ s -->
     <string name="custom_workspace_cling_title_2"></string>
     <!-- Dummy string [CHAR_LIMIT=60] -->
     <string name="custom_workspace_cling_description_2"></string>
-
+    
 </resources>
