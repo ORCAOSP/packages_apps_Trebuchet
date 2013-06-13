@@ -54,15 +54,52 @@ public class Preferences extends PreferenceActivity
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-        OnPreferenceChangeListener listener = new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                PreferencesProvider.setBoolean(preference.getKey(), (Boolean) newValue);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                finish();
                 return true;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mPreferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onBuildHeaders(List<Header> target) {
+        loadHeadersFromResource(R.xml.preferences_headers, target);
+        updateHeaders(target);
+    }
+
+    private void updateHeaders(List<Header> headers) {
+        int i = 0;
+        while (i < headers.size()) {
+            Header header = headers.get(i);
+
+            // Version preference
+            if (header.id == R.id.preferences_application_version) {
+                header.title = getString(R.string.application_name) + " " + getString(R.string.application_version);
             }
 
-        findPreference("ui_general_orientation").setOnPreferenceChangeListener(listener);
-        findPreference("ui_pinch_expanded").setOnPreferenceChangeListener(listener);
+            // Increment if not removed
+            if (headers.get(i) == header) {
+                i++;
+            }
+        }
     }
 
     @Override
