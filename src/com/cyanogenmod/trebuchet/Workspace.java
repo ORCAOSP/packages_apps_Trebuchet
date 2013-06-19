@@ -392,8 +392,9 @@ public class Workspace extends PagedView
         }
 
         mStretchScreens = PreferencesProvider.Interface.Homescreen.getStretchScreens();
-        // Large screen has calculated dimensions always
-        if (LauncherApplication.isScreenLarge()) {
+        // Large screen has calculated dimensions always, unless specified by config_workspaceTabletGrid option
+        boolean workspaceTabletGrid = getResources().getBoolean(R.bool.config_workspaceTabletGrid);
+        if (LauncherApplication.isScreenLarge() && workspaceTabletGrid == false) {
             mStretchScreens = false;
         }
         mShowSearchBar = PreferencesProvider.Interface.Homescreen.getShowSearchBar();
@@ -1022,10 +1023,12 @@ public class Workspace extends PagedView
     }
 
     protected void setWallpaperDimension() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        mLauncher.getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
-        final int maxDim = Math.max(displayMetrics.widthPixels, displayMetrics.heightPixels);
-        final int minDim = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        Point minDims = new Point();
+        Point maxDims = new Point();
+        mLauncher.getWindowManager().getDefaultDisplay().getCurrentSizeRange(minDims, maxDims);
+
+        final int maxDim = Math.max(maxDims.x, maxDims.y);
+        final int minDim = Math.min(minDims.x, minDims.y);
 
         // We need to ensure that there is enough extra space in the wallpaper for the intended
         // parallax effects
@@ -1178,9 +1181,9 @@ public class Workspace extends PagedView
 
     class WallpaperOffsetInterpolator {
         float mFinalHorizontalWallpaperOffset = 0.0f;
-        float mFinalVerticalWallpaperOffset = 0.0f;
+        float mFinalVerticalWallpaperOffset = 0.5f;
         float mHorizontalWallpaperOffset = 0.0f;
-        float mVerticalWallpaperOffset = 0.0f;
+        float mVerticalWallpaperOffset = 0.5f;
         long mLastWallpaperOffsetUpdateTime;
         boolean mIsMovingFast;
         boolean mOverrideHorizontalCatchupConstant;
