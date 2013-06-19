@@ -4013,8 +4013,6 @@ public class Workspace extends PagedView
         // needed
         updateChildrenLayersEnabled(false);
         setupWallpaper();
-
-        mIsLandscape = LauncherApplication.isScreenLandscape(mLauncher);
     }
 
     void setupWallpaper() {
@@ -4457,7 +4455,7 @@ public class Workspace extends PagedView
     }
 
     void moveToDefaultScreen(boolean animate) {
-        if (!isSmall()) {
+        if (!isSmall() && !mIsSwitchingState) {
             if (animate) {
                 snapToPage(mDefaultHomescreen);
             } else {
