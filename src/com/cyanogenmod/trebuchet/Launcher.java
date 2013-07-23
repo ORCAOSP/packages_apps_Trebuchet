@@ -2734,6 +2734,16 @@ public final class Launcher extends Activity
         }
     }
 
+    void updateWallpaperVisibility(boolean visible) {
+        int wpflags = visible && mWallpaperVisible ? WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER : 0;
+        int curflags = getWindow().getAttributes().flags
+                & WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER;
+        if (wpflags != curflags) {
+            getWindow().setFlags(wpflags, WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
+        }
+        setWorkspaceBackground(visible);
+    }
+
     private void updateFullscreenMode(boolean enable) {
         int fsflags = enable ? WindowManager.LayoutParams.FLAG_FULLSCREEN : 0;
         int curflags = getWindow().getAttributes().flags
@@ -2894,6 +2904,9 @@ public final class Launcher extends Activity
                         mWorkspace.hideScrollingIndicator(true);
                         hideDockDivider();
                     }
+                    if (!animationCancelled) {
+                        updateWallpaperVisibility(false);
+                    }
 
                     // Hide the search bar
                     if (mSearchDropTargetBar != null) {
@@ -2983,7 +2996,8 @@ public final class Launcher extends Activity
             dispatchOnLauncherTransitionEnd(fromView, animated, false);
             dispatchOnLauncherTransitionPrepare(toView, animated, false);
             dispatchOnLauncherTransitionStart(toView, animated, false);
-            dispatchOnLauncherTransitionEnd(toView, animated, false);          
+            dispatchOnLauncherTransitionEnd(toView, animated, false);
+            updateWallpaperVisibility(false);
         }
     }
 
@@ -3020,7 +3034,7 @@ public final class Launcher extends Activity
         }
 
         setPivotsForZoom(fromView);
-        
+        updateWallpaperVisibility(true);
         showHotseat(animated);
         if (animated) {
             final LauncherViewPropertyAnimator scaleAnim =
@@ -3051,7 +3065,8 @@ public final class Launcher extends Activity
 
             mStateAnimation.addListener(new AnimatorListenerAdapter() {
                 @Override
-                public void onAnimationEnd(Animator animation) {                 
+                public void onAnimationEnd(Animator animation) {
+                    updateWallpaperVisibility(true);
                     fromView.setVisibility(View.GONE);
                     dispatchOnLauncherTransitionEnd(fromView, animated, true);
                     dispatchOnLauncherTransitionEnd(toView, animated, true);
@@ -3105,6 +3120,7 @@ public final class Launcher extends Activity
         if (!hasFocus) {
             // When another window occludes launcher (like the notification shade, or recents),
             // ensure that we enable the wallpaper flag so that transitions are done correctly.
+            updateWallpaperVisibility(true);
         } else {
             // When launcher has focus again, disable the wallpaper if we are in AllApps
             mWorkspace.postDelayed(new Runnable() {
